@@ -1,4 +1,4 @@
-let webSocket = new WebSocket("wss://online-rps.aidanroberts2.repl.co");
+let webSocket = new WebSocket("wss://"+window.location.hostname);
 
 webSocket.onopen = (event) => {
   webSocket.send("connection opened")
@@ -11,8 +11,10 @@ webSocket.onerror = (err) => {
 };
 
 const choiceBtns = document.querySelectorAll("button");
-console.log(choiceBtns)
+
 choiceBtns.forEach((btn) => {
-  btn.onclick = (evnt) => {webSocket.send(btn.id)}  
+  btn.onclick = (evnt) => {
+    webSocket.send(btn.id);
+  }  
   console.log(btn);
 });
