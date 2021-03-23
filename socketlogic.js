@@ -5,26 +5,28 @@ exports.handleConnection = (io, socket,uuid) => {
   socket.join("lobby");
   io.to("lobby").emit("test","You are in the lobby");
 
-  const queuedSockets = io.of("/").in("lobby").sockets;
-  console.log();
-  if (queuedSockets.size >= 2) {
-    let socketPairs = [];
-    for ([id,socket] of queuedSockets) {
-     if (socketPairs.some(elem => elem.length === 1)) {
-       let newRoom = uuid.v4();
-       
-     }
-    }    
+  const connectedSocketsMap = io.of("/").sockets; //map of [id: socketObj] pairs
+  const connectedSocketArray = [...connectedSocketsMap].map(([id, socket]) => {return socket}); //converted to array of socket objects
+  const queuedSocketArray = connectedSocketArray.filter((socket) => {return socket.rooms.has("lobby")});//filters out all sockets not in the lobby/queue for matchmaking
+  console.log(queuedSocketArray.length);
+  const socketPairs = splitArray(queuedSocketArray, 2).filter((pair) => {return pair.length == 2});//split array into pairs and removed the ones with less than 2 sockets
+  for(const socketPair of socketPairs) {//sends each pair to a randomly generated room and disconnects them from the lobby
+    const roomId = uuid.v4();
+    socketPair.forEach((socket) => {
+      socket.join(roomId);
+      socket.leave("lobby");
+      io.to(roomId).emit("test", `You are in room ${roomId} with these ppl in it ${socketPair}`);
+    }); 
   }
-//  let testArr = [1,2,3,4,5,6];
-// let paired = [];
+}
 
-// testArr.reduce((lastVal,currentVal,index,arr) => {
-//   if ((index % 2) === 0) {
-//     paired.push(arr.slice(index,index+2));
-//   }
-// },[]);
-// console.log(paired)
- 
+function splitArray(array, size) {
+  let newArr = [];
+  array.reduce((lastVal,currentVal,index,arr) => {
+    if ((index % size) === 0) {
+      newArr.push(arr.slice(index,index+size));
+    }
+  },[]);
+  return newArr;
 }
 
