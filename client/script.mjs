@@ -1,4 +1,17 @@
-let socket = io();
+const socket = io();
 socket.on("test",msg => console.log(msg));
+const playButton = document.getElementById("play");
+const statusDiv = document.getElementById("status");
+const choiceBtns = document.getElementsByClassName("moveChoice");
+for(let btn of choiceBtns) {
+  btn.onclick = () => {socket.emit("player choice",btn.id);}
+}
+playButton.onclick = () => {
+  socket.emit("play");
+  statusDiv.textContent = "joining game...";
+}
+socket.on("joined game",(room) => {
+  statusDiv.textContent = `Joined game ${room}, enter choice now`;
+});
 
 

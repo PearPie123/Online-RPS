@@ -1,10 +1,16 @@
+const gameLogic = require("./gamelogic")
 //called to handle each new socket connection
 exports.handleConnection = (io, socket,uuid) => {
+  console.log("new connection")
+  socket.on("play",() => {
+    matchmake(io,socket,uuid);
+  });
 
-  console.log("connection! yay")
+}
+
+function matchmake(io,socket,uuid) {
   socket.join("lobby");
-  io.to("lobby").emit("test","You are in the lobby");
-
+  io.to(socket.id).emit("test","You have entered matchmaking.");
   const connectedSocketsMap = io.of("/").sockets; //map of [id: socketObj] pairs
   const connectedSocketArray = [...connectedSocketsMap].map(([id, socket]) => {return socket}); //converted to array of socket objects
   const queuedSocketArray = connectedSocketArray.filter((socket) => {return socket.rooms.has("lobby")});//filters out all sockets not in the lobby/queue for matchmaking
@@ -15,9 +21,29 @@ exports.handleConnection = (io, socket,uuid) => {
     socketPair.forEach((socket) => {
       socket.join(roomId);
       socket.leave("lobby");
-      io.to(roomId).emit("test", `You are in room ${roomId} with these ppl in it ${socketPair}`);
+      handleGame(socketPair);
     }); 
+    io.to(roomId).emit("joined game", roomId);
   }
+}
+
+function handleGame (socketPair) {
+  const socket1 = socketPair[0];
+  const socket2 = socketPair[1];
+  let socket1Choice;
+  let socket2Choice;
+  socket1.on("player choice",(choice) => {
+    socket1Choice = choice;
+    if(socket1Choice != undefined && socket2Choice != undefined) {
+      console.log(socket2Choice,socket1Choice);
+    }
+  });
+  socket2.on("player choice",(choice) => {
+    socket2Choice = choice
+    if(socket1Choice != undefined && socket2Choice != undefined) {
+      console.log(socket2Choice,socket1Choice);
+    }
+  });
 }
 
 function splitArray(array, size) {

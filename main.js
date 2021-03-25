@@ -1,6 +1,6 @@
 const path = require("path");
 const express = require("express");
-const uuid = require("uuid")
+const uuid = require("uuid");
 const app = express();
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
