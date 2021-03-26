@@ -41,11 +41,11 @@ function handleGame (socketPair, io) {
   const socket2 = socketPair[1];
   let socket1Choice;
   let socket2Choice;
-  socket1.on("player choice",(choice) => {
+  socket1.once("player choice",(choice) => {
     socket1Choice = choice;
     outcomeWrapper(socket1, socket2, socket1Choice, socket2Choice);
   });
-  socket2.on("player choice",(choice) => {
+  socket2.once("player choice",(choice) => {
     socket2Choice = choice
     outcomeWrapper(socket1, socket2, socket1Choice, socket2Choice);
   });
