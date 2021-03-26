@@ -14,4 +14,7 @@ socket.on("joined game",(room) => {
   statusDiv.textContent = `Joined game ${room}, enter choice now`;
 });
 
+socket.on("outcome", (outcome) => {
+  statusDiv.textContent = "Outcome of game: " + outcome;
+});
 

@@ -21,28 +21,33 @@ function matchmake(io,socket,uuid) {
     socketPair.forEach((socket) => {
       socket.join(roomId);
       socket.leave("lobby");
-      handleGame(socketPair);
-    }); 
+
+    });
+    handleGame(socketPair, io); 
     io.to(roomId).emit("joined game", roomId);
   }
 }
 
-function handleGame (socketPair) {
+function handleGame (socketPair, io) {
+  function outcomeWrapper(socket1, socket2, socket1Choice, socket2Choice) {
+    if(socket1Choice != undefined && socket2Choice != undefined) {
+      const outcome = gameLogic.getOutcome(socket1Choice,socket2Choice);
+      const personalOutcomes = gameLogic.getPersonalOutcome(socket1, socket2, outcome);
+      io.to(socket1.id).emit("outcome",personalOutcomes.socket1);
+      io.to(socket2.id).emit("outcome",personalOutcomes.socket2);
+    }
+  }
   const socket1 = socketPair[0];
   const socket2 = socketPair[1];
   let socket1Choice;
   let socket2Choice;
   socket1.on("player choice",(choice) => {
     socket1Choice = choice;
-    if(socket1Choice != undefined && socket2Choice != undefined) {
-      console.log(socket2Choice,socket1Choice);
-    }
+    outcomeWrapper(socket1, socket2, socket1Choice, socket2Choice);
   });
   socket2.on("player choice",(choice) => {
     socket2Choice = choice
-    if(socket1Choice != undefined && socket2Choice != undefined) {
-      console.log(socket2Choice,socket1Choice);
-    }
+    outcomeWrapper(socket1, socket2, socket1Choice, socket2Choice);
   });
 }
 
