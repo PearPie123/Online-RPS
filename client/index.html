@@ -1,21 +1,25 @@
 <!DOCTYPE html>
-<html lang="eng">
+<html lang="eng" style="height: 100%; width: 100%;">
 
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="/socket.io/socket.io.js"></script>
-    <!--<link rel="stylesheet" href="style.css"> -->
+    <link rel="stylesheet" href="style.css">
     <script type="module" defer="true"src="script.mjs"></script>
   </head>
 
-  <body>
-    <div id="status">Status</div>
-    <button id="play">Play</button>
-    <button id="r" class="moveChoice">Rock</button>
-    <button id="p" class="moveChoice">Paper</button>
-    <button id="s" class="moveChoice">Scissors</button>
+  <body style="height: 100%; width: 100%;">
 
+    <div id="menuContainer" class="mainContainerVisible centerChildren">
+      <button id="play">Play</button>
+    </div>
+
+    <div id="gameContainer" class="mainContainerVisible centerChildren">
+      <button id="r" class="moveChoice">Rock</button>
+      <button id="p" class="moveChoice">Paper</button>
+      <button id="s" class="moveChoice">Scissors</button>
+    </div>
   </body>
 
 </html>

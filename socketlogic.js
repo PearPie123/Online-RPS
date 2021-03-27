@@ -9,19 +9,17 @@ exports.handleConnection = (io, socket,uuid) => {
 }
 
 function matchmake(io,socket,uuid) {
-  socket.join("lobby");
-  io.to(socket.id).emit("test","You have entered matchmaking.");
+  socket.join("matchmaking");
   const connectedSocketsMap = io.of("/").sockets; //map of [id: socketObj] pairs
   const connectedSocketArray = [...connectedSocketsMap].map(([id, socket]) => {return socket}); //converted to array of socket objects
-  const queuedSocketArray = connectedSocketArray.filter((socket) => {return socket.rooms.has("lobby")});//filters out all sockets not in the lobby/queue for matchmaking
-  console.log(queuedSocketArray.length);
+  const queuedSocketArray = connectedSocketArray.filter((socket) => {return socket.rooms.has("matchmaking")});//filters out all sockets not in the lobby/queue for matchmaking
   const socketPairs = splitArray(queuedSocketArray, 2).filter((pair) => {return pair.length == 2});//split array into pairs and removed the ones with less than 2 sockets
+  
   for(const socketPair of socketPairs) {//sends each pair to a randomly generated room and disconnects them from the lobby
     const roomId = uuid.v4();
     socketPair.forEach((socket) => {
       socket.join(roomId);
-      socket.leave("lobby");
-
+      socket.leave("matchmaking");
     });
     handleGame(socketPair, io); 
     io.to(roomId).emit("joined game", roomId);
@@ -29,10 +27,10 @@ function matchmake(io,socket,uuid) {
 }
 
 function handleGame (socketPair, io) {
-  function outcomeWrapper(socket1, socket2, socket1Choice, socket2Choice) {
+  function outcomeHandler(socket1, socket2, socket1Choice, socket2Choice) { //takes outcomes and emits personalized outcome (win/loss/tie) to each player
     if(socket1Choice != undefined && socket2Choice != undefined) {
       const outcome = gameLogic.getOutcome(socket1Choice,socket2Choice);
-      const personalOutcomes = gameLogic.getPersonalOutcome(socket1, socket2, outcome);
+      const personalOutcomes = gameLogic.getPersonalOutcomes(socket1, socket2, outcome);
       io.to(socket1.id).emit("outcome",personalOutcomes.socket1);
       io.to(socket2.id).emit("outcome",personalOutcomes.socket2);
     }
@@ -43,11 +41,11 @@ function handleGame (socketPair, io) {
   let socket2Choice;
   socket1.once("player choice",(choice) => {
     socket1Choice = choice;
-    outcomeWrapper(socket1, socket2, socket1Choice, socket2Choice);
+    outcomeHandler(socket1, socket2, socket1Choice, socket2Choice);
   });
   socket2.once("player choice",(choice) => {
     socket2Choice = choice
-    outcomeWrapper(socket1, socket2, socket1Choice, socket2Choice);
+    outcomeHandler(socket1, socket2, socket1Choice, socket2Choice);
   });
 }
 
