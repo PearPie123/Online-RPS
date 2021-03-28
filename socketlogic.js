@@ -2,8 +2,17 @@ const gameLogic = require("./gamelogic")
 //called to handle each new socket connection
 exports.handleConnection = (io, socket,uuid) => {
   console.log("new connection")
+  
+  let connectedSocketsAmount = io.of("/").sockets.size;
+  io.emit("players online", connectedSocketsAmount);
+
   socket.on("play",() => {
     matchmake(io,socket,uuid);
+  });
+
+  socket.on("disconnect",() => {
+    connectedSocketsAmount = io.of("/").sockets.size;
+    io.emit("players online", connectedSocketsAmount);
   });
 
 }
