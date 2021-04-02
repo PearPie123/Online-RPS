@@ -12,16 +12,20 @@
   <body style="height: 100%; width: 100%;">
 
     <div id="menuContainer" class="mainContainerVisible centerChildren">
+      <label id="nameLabel" for="name">Enter a username</label>
+      <input id="name" type="text">
       <button id="play">Play</button>
     </div>
 
     <div id="gameContainer" class="mainContainerHidden centerChildren">
+      <div id="playerStatus">Waiting for choice</div>
+      <div id="oponentStatus"></div>
       <button id="r" class="moveChoice">Rock</button>
       <button id="p" class="moveChoice">Paper</button>
       <button id="s" class="moveChoice">Scissors</button>
-      
     </div>
-    <div id="playersOnline">players online</div>
+
+    <div id="playersOnline">Loading...</div>
   </body>
 
 </html>
