@@ -15,20 +15,20 @@ exports.getOutcome = (choice1, choice2) => { //1 if choice1 wins, 2 if choice 2 
     : 2
 };
 
-exports.getPersonalOutcomes = (socket1, socket2, outcome) => {
-  const socket1Result = ((outcome === 1)
+exports.getPersonalOutcomes = (player1, player2, outcome) => {
+  const player1Result = ((outcome === 1)
                              ? "win"
                              : (outcome == 2)
                              ? "loss"
                              : "tie");
-  const socket2Result = ((outcome === 2)
+  const player2Result = ((outcome === 2)
                              ? "win"
                              : (outcome == 1)
                              ? "loss"
                              : "tie");
   const outcomes = {
-    socket1: socket1Result,
-    socket2: socket2Result
+    player1: player1Result,
+    player2: player2Result
   }                       
   return outcomes;  
 }

@@ -6,8 +6,9 @@ exports.handleConnection = (io, socket,uuid) => {
   let connectedSocketsAmount = io.of("/").sockets.size;
   io.emit("players online", connectedSocketsAmount);
 
-  socket.on("play",() => {
-    matchmake(io,socket,uuid);
+  socket.on("play", (playerData) => {
+    socket.customData = {};
+    matchmake(io, socket, uuid, playerData);
   });
 
   socket.on("disconnect",() => {
@@ -17,44 +18,51 @@ exports.handleConnection = (io, socket,uuid) => {
 
 }
 
-function matchmake(io,socket,uuid) {
+function matchmake(io, socket, uuid, playerData) {
   socket.join("matchmaking");
+  socket.customData.playerObj = new Player(socket, playerData);
   const connectedSocketsMap = io.of("/").sockets; //map of [id: socketObj] pairs
   const connectedSocketArray = [...connectedSocketsMap].map(([id, socket]) => {return socket}); //converted to array of socket objects
   const queuedSocketArray = connectedSocketArray.filter((socket) => {return socket.rooms.has("matchmaking")});//filters out all sockets not in the lobby/queue for matchmaking
   const socketPairs = splitArray(queuedSocketArray, 2).filter((pair) => {return pair.length == 2});//split array into pairs and removed the ones with less than 2 sockets
-  
+  if(socketPairs.length <=0) {
+    return;
+  }
   for(const socketPair of socketPairs) {//sends each pair to a randomly generated room and disconnects them from the lobby
     const roomId = uuid.v4();
+    let playerPair = [];
     socketPair.forEach((socket) => {
+      playerPair.push(socket.customData.playerObj);
       socket.join(roomId);
       socket.leave("matchmaking");
+      const gameData = {
+        oponentUsername: socketPair[Math.abs(socketPair.indexOf(socket)-1)].customData.playerObj.username
+      }
+      io.to(socket.id).emit("joined game", gameData);
     });
-    handleGame(socketPair, io); 
-    io.to(roomId).emit("joined game", roomId);
+    handleGame(playerPair, io); 
   }
 }
 
-function handleGame (socketPair, io) {
-  function outcomeHandler(socket1, socket2, socket1Choice, socket2Choice) { //takes outcomes and emits personalized outcome (win/loss/tie) to each player
-    if(socket1Choice != undefined && socket2Choice != undefined) {
-      const outcome = gameLogic.getOutcome(socket1Choice,socket2Choice);
-      const personalOutcomes = gameLogic.getPersonalOutcomes(socket1, socket2, outcome);
-      io.to(socket1.id).emit("outcome",personalOutcomes.socket1);
-      io.to(socket2.id).emit("outcome",personalOutcomes.socket2);
+function handleGame (playerPair, io) {
+  playerPair.forEach((player)=>{console.log(player.clientData.username)});
+  function outcomeHandler(player1, player2) { //takes outcomes and emits personalized outcome (win/loss/tie) to each player
+    if(player1.choice != undefined && player2.choice != undefined) {
+      const outcome = gameLogic.getOutcome(player1.choice, player2.choice);
+      const personalOutcomes = gameLogic.getPersonalOutcomes(player1.socket, player2.socket, outcome);
+      io.to(player1.socket.id).emit("outcome", personalOutcomes.player1);
+      io.to(player2.socket.id).emit("outcome", personalOutcomes.player2);
     }
   }
-  const socket1 = socketPair[0];
-  const socket2 = socketPair[1];
-  let socket1Choice;
-  let socket2Choice;
-  socket1.once("player choice",(choice) => {
-    socket1Choice = choice;
-    outcomeHandler(socket1, socket2, socket1Choice, socket2Choice);
+  const player1 = playerPair[0];
+  const player2 = playerPair[1];
+  player1.socket.once("player choice",(choice) => {
+    player1.setChoice(choice);
+    outcomeHandler(player1, player2);
   });
-  socket2.once("player choice",(choice) => {
-    socket2Choice = choice
-    outcomeHandler(socket1, socket2, socket1Choice, socket2Choice);
+  player2.socket.once("player choice",(choice) => {
+    player2.setChoice(choice);
+    outcomeHandler(player1, player2);
   });
 }
 
@@ -66,5 +74,15 @@ function splitArray(array, size) {
     }
   },[]);
   return newArr;
+}
+
+class Player {
+  constructor(socket, clientData) {
+    this.socket = socket;
+    this.clientData = JSON.parse(clientData);
+  }
+  setChoice = (choice) => {
+    this.choice = choice;
+  }
 }
 

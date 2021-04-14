@@ -18,13 +18,24 @@
     </div>
 
     <div id="gameContainer" class="mainContainerHidden centerChildren">
-      <div id="playerStatus">Waiting for choice</div>
-      <div id="oponentStatus"></div>
+      <div id="playersInfoContainer">
+        <div class="centerChildren userInfoContainer">
+          <div id="userStatus">Waiting for choice</div>
+        </div>
+
+        <div class="centerChildren oponentInfoContainer">
+          <div id="oponentStatus">Waiting for choice</div>
+        </div>
+      </div>
+      <div class="gameInfo">
+        <div id="gameOutcome"></div>
+      </div>
+
       <button id="r" class="moveChoice">Rock</button>
       <button id="p" class="moveChoice">Paper</button>
       <button id="s" class="moveChoice">Scissors</button>
     </div>
-
+    
     <div id="playersOnline">Loading...</div>
   </body>
 
