@@ -2,7 +2,7 @@ body {
   position: relative;
 }
 .centerChildren {
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -40,4 +40,16 @@ body {
 
 #name {
   display: block;
+}
+#playersInfoContainer {
+  border: 2px solid black;
+  padding: 3vw 3vh 3vw 3vh;
+}
+.playerInfo {
+  border: 2px solid black;
+}
+
+.chosenChoice {
+  border: 2px solid black;
+  color: black;
 }

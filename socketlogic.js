@@ -36,8 +36,9 @@ function matchmake(io, socket, uuid, playerData) {
       socket.join(roomId);
       socket.leave("matchmaking");
       const gameData = {
-        oponentUsername: socketPair[Math.abs(socketPair.indexOf(socket)-1)].customData.playerObj.username
+        oponentUsername: socketPair[Math.abs(socketPair.indexOf(socket)-1)].customData.playerObj.clientData.username
       }
+      console.log(gameData.oponentUsername)
       io.to(socket.id).emit("joined game", gameData);
     });
     handleGame(playerPair, io); 
@@ -45,13 +46,12 @@ function matchmake(io, socket, uuid, playerData) {
 }
 
 function handleGame (playerPair, io) {
-  playerPair.forEach((player)=>{console.log(player.clientData.username)});
   function outcomeHandler(player1, player2) { //takes outcomes and emits personalized outcome (win/loss/tie) to each player
     if(player1.choice != undefined && player2.choice != undefined) {
       const outcome = gameLogic.getOutcome(player1.choice, player2.choice);
-      const personalOutcomes = gameLogic.getPersonalOutcomes(player1.socket, player2.socket, outcome);
-      io.to(player1.socket.id).emit("outcome", personalOutcomes.player1);
-      io.to(player2.socket.id).emit("outcome", personalOutcomes.player2);
+      const personalOutcomes = gameLogic.getPersonalOutcomes(player1, player2, outcome);
+      io.to(player1.socket.id).emit("outcome", JSON.stringify(personalOutcomes.player1));
+      io.to(player2.socket.id).emit("outcome", JSON.stringify(personalOutcomes.player2));
     }
   }
   const player1 = playerPair[0];

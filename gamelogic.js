@@ -27,8 +27,14 @@ exports.getPersonalOutcomes = (player1, player2, outcome) => {
                              ? "loss"
                              : "tie");
   const outcomes = {
-    player1: player1Result,
-    player2: player2Result
+    player1: {
+      outcome: player1Result,
+      oponentChoice: player2.choice
+    },
+    player2: {
+      outcome: player2Result,
+      oponentChoice: player1.choice
+    }
   }                       
   return outcomes;  
 }

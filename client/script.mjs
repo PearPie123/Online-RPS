@@ -5,8 +5,6 @@ const menuContainer = document.getElementById("menuContainer");
 const gameContainer = document.getElementById("gameContainer");
 const choiceBtns = document.getElementsByClassName("moveChoice");
 const playersOnlineStatus = document.getElementById("playersOnline");
-const playerStatus = document.getElementById("playerStatus");
-const oponentStatus = document.getElementById("oponentStatus");
 const gameOutcome = document.getElementById("gameOutcome");
 
 function switchContainers(menuContainer, gameContainer) {
@@ -20,7 +18,10 @@ socket.on("test",msg => console.log(msg));
 for(let btn of choiceBtns) {
   btn.onclick = () => {
     socket.emit("player choice",btn.id);
-    playerStatus.textContent = `Choice: ${btn.textContent}`;
+    Array.from(choiceBtns).forEach(btn => {
+      btn.disabled = true;  
+    });
+    btn.classList.add("chosenChoice");
   }
 }
 
@@ -29,15 +30,19 @@ playButton.onclick = () => {
     username: nameInput.value,
   }
   switchContainers(menuContainer, gameContainer);
+  document.getElementById("userUsername").textContent = playerData.username;
   socket.emit("play", JSON.stringify(playerData));
 
 }
 socket.on("joined game",(gameData) => {
-  
+  const oponentUsername = document.getElementById("oponentUsername");
+  oponentUsername.textContent = gameData.oponentUsername;
 });
 
-socket.on("outcome", (outcome) => {
-  gameOutcome.textContent = "Outcome of game: " + outcome;
+socket.on("outcome", (outcomeData) => {
+  const outcomeObj = JSON.parse(outcomeData);
+  document.getElementById("oponent"+outcomeObj.oponentChoice).classList.add("chosenChoice");
+  gameOutcome.textContent = `Outcome of game: ${outcomeObj.outcome}`;
 });
 
 socket.on("players online", (numPlayers) => {
