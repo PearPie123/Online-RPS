@@ -17,29 +17,35 @@
       <button id="play">Play</button>
     </div>
 
+    <div id="matchmakingContainer" class="mainContainerHidden centerChildren">
+      <p>Matchmaking...</p>
+      <p>Players online: <span class="playersOnline"></span></p>
+    </div>
+
     <div id="gameContainer" class="mainContainerHidden centerChildren">
       <div id="playersInfoContainer">
         <div class="centerChildren userInfo playerInfo">
-          <div id="userUsername">Waiting for choice</div>
+          <div id="userUsername"></div>
           <button id="r" class="moveChoice">Rock</button>
           <button id="p" class="moveChoice">Paper</button>
           <button id="s" class="moveChoice">Scissors</button>
         </div>
 
         <div class="centerChildren oponentInfoContainer playerInfo">
-          <div id="oponentUsername">Waiting for choice</div>
+          <div id="oponentUsername"></div>
           <button id="oponentr" class="oponentChoice" disabled>Rock</button>
           <button id="oponentp" class="oponentChoice" disabled>Paper</button>
           <button id="oponents"class="oponentChoice" disabled>Scissors</button>
         </div>
       </div>    
       <div class="gameInfo">
-        <div id="gameOutcome"></div>
+        <p id="gameOutcome"></p>
+        <button id="returnToMenu">Return to menu</button>
       </div>
 
     </div>
     
-    <div id="playersOnline">Loading...</div>
+    <p class="justifyBottomLeft">Players online: <span class="playersOnline"></span></p>
   </body>
 
 </html>

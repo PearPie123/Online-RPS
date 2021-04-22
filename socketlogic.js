@@ -9,6 +9,9 @@ exports.handleConnection = (io, socket,uuid) => {
   socket.on("play", (playerData) => {
     socket.customData = {};
     matchmake(io, socket, uuid, playerData);
+    socket.on("return to menu", () =>{
+      socket.leave(socket.customData.gameRoom);
+    });
   });
 
   socket.on("disconnect",() => {
@@ -33,6 +36,7 @@ function matchmake(io, socket, uuid, playerData) {
     let playerPair = [];
     socketPair.forEach((socket) => {
       playerPair.push(socket.customData.playerObj);
+      socket.customData.gameRoom = roomId;
       socket.join(roomId);
       socket.leave("matchmaking");
       const gameData = {

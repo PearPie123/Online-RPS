@@ -24,7 +24,7 @@ body {
 #menuContainer {
 
 }
-#playersOnline {
+.justifyBottomLeft {
   position: absolute;
   bottom: 10px;
   left: 10px;
